@@ -1,0 +1,72 @@
+FNMean = mean(v);
+    FNStd = std(v);
+    FNSkewness = skewness(v);
+    FNKurtosis = kurtosis(v);
+    FNPeak2Peak = peak2peak(v);
+    FNRMS = rms(v);
+    FNCrestFactor = max(v)/FNRMS;
+    FNShapeFactor = FNRMS/mean(abs(v));
+    FNImpulseFactor = max(v)/mean(abs(v));
+    FNMarginFactor = max(v)/mean(abs(v)).^2;
+    FNEnergy = sum(v.^2);
+    
+    P = pulseperiod(v);
+    avgFreq = 1./mean(P); %% Mean Frequency
+    totalJitter = std(P); %% Jitter
+    
+    Sh_E = wentropy(v,'shannon');
+    LE_E = wentropy(v,'log energy');
+    SNDR=sinad(v); %% Signal to noise & distortion ratio
+    SFDR = sfdr(v,fs); %% Spurious free dynamic range
+    THD=thd(v); %% Total harmonic distortion
+    
+    wc = 10;
+    [SK, ~] = pkurtosis(v,fs,wc);
+    FNSMean = mean(SK);
+    FNSStd = std(SK);
+    FNSSkewness = skewness(SK);
+    FNSKurtosis = kurtosis(SK);
+    
+    BaP=bandpower(v);
+    MF = medfreq(v,fs);
+    BaW = obw(v,fs);
+    PBaW = powerbw(v,fs);
+    PRMS = peak2rms(v);
+    RSSQ = rssq(v);
+    FCP = findchangepts(v);
+    
+    IQR = iqr(v');
+    MeanAD=mad(v',0);
+    MedAD=mad(v',1);
+    
+    lyapExp = lyapunovExponent(v,fs);
+    corDim = correlationDimension(v);
+    approxEnt = approximateEntropy(v);
+%     cepFeatures = cepstralFeatureExtractor('SampleRate',fs,'NumCoeffs',4);
+%     FCC = cepFeatures(v);
+%     FCC=FCC';
+Q25=quantile(v, 0.25);
+Q75=quantile(v, 0.75);
+
+
+%%%% Computation for Spectrogram
+        afWindow    = hann(iBlockLength,'periodic');
+        [X,f,t]     = spectrogram( v,...
+                                    afWindow,...
+                                    iBlockLength-iHopLength,...
+                                    iBlockLength,...
+                                    fs);
+ 
+        % magnitude spectrum
+        X           = abs(X)*2/iBlockLength;
+        
+    SP_Cent=SpectralCentroid(X,fs);
+    SP_Flux=SpectralFlux(X,fs);
+    SP_R=SpectralRollOff(X,fs);
+    SP_F=SpectralFlatness(X,fs);  %% Wiener Entropy or Spectral Flatness Measure
+    SP_Crest=SpectralCrest(X,fs);
+    SP_Dec=SpectralDecrease(X,fs);
+    SP_SL=SpectralSlope(X,fs);
+    SP_SP=SpectralSpread(X,fs);
+
+    LBP=extractLBPFeatures(X);
